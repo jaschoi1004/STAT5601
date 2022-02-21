@@ -1,0 +1,101 @@
+---
+title: "Homework 4"
+author: "Jong Hyun Choi"
+date: "3/21/2021"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r}
+data3.3 = read.csv("tab3_3.csv")
+x=data3.3$x
+y=data3.3$y
+```
+
+Exercise 1 
+
+H0:μ=0
+H1:μ>0
+where μ is the mean (or median) of Z=X−Y
+We can see from the two results, the test statistic for the Wilcoxon is just on a different scale with 
+T = (V-E(V))/sqrt(var(V)), so both test statistics are the same. 
+Also, the p-values are same because the second result rounded to four places while the Wilcoxon rounded to five places. Since the p-value is less than 0.1 significance level, we reject the null hypothesis. 
+
+```{r}
+wilcox.test(y, x, alternative = "greater", paired = TRUE, conf.level = 0.9)
+suppressMessages(library(nptest))
+nlt = np.loc.test(y,x, alternative = "greater", paired = TRUE, median.test = TRUE)
+nlt
+```
+
+
+Exercise 2 
+H0:μ=0
+H1:μ>0
+where μ is the mean (or median) of Z=X−Y
+From the results, we see that both approaches use the same observed test statistic, but return the result on a different scale with T = (S-E(S))/sqrt(var(S)). Also, we return the same p-value from both functions, and because the p-value is less than 0.1, we reject the null hypothesis 
+```{r}
+suppressMessages(library(BSDA))
+SIGN.test(y, x, alternative = "greater", conf.level = 0.9)
+nlt2 = np.loc.test(y,x, alternative = "greater", paired = TRUE, median.test = TRUE, symmetric = FALSE)
+nlt2
+```
+
+
+Exercise 3 
+The number of elements of the exact null distribution is 2^7= 128. In exercise 1 the wilcox.test has less than N=50 observations with no ties, so it is implementing an exact test. 
+Exercise 2 has number of elements of the exact null distribution is manageable (M=128), so both functions are implementing an exact test. 
+
+
+Exercise 4 
+The estimate of the location shift is δ^=54.3
+The standardized test statistic (Wstar) is around 3.172, which is the same test statistic that we got in np.loc.test function. And we can see that the exact null distribution is 0.0006
+The result is similar to the large sample approximation that I previous obtained for Wstar which is around 0.0007
+```{r}
+data4.3 <- read.csv("tab4_3.csv")
+x1 <- data4.3$nonallergics
+y1 <- data4.3$allergics[1:9]
+```
+
+```{r}
+wilcox.test(y1, x1, alternative = "greater", conf.level = 0.99, conf.int = TRUE)
+```
+
+```{r}
+set.seed(1)
+nlt3 = np.loc.test(y1,x1, alternative = "greater", median.test = TRUE, var.equal = TRUE, R = 9999)
+nlt3
+```
+```{r}
+z <- c(x1, y1)
+m <- length(x1)
+n <- length(y1)
+N <- m + n
+# calculate test statistic
+R <- rank(z)
+W <- sum(R[(m+1):N])
+# large sample expectation and variance
+E.W <- n * (N + 1) / 2
+V.W <- m * n * (N + 1) / 12
+# large sample test statistic and p-value
+Wstar <- (W - E.W) / sqrt(V.W)
+Wstar
+1 - pnorm(Wstar)
+```
+
+Exercise 5 
+The number of elements of the exact null distribution is M = (m+n choose m). 
+With X being m and Y being n, we have m+n = 22 
+22 choose 13 = 497,420 number of elements of the exact null distribution. 
+
+You can obtain an exact test if you set M = 497,420 instead of having the default R= 9999. 
+The exact pvalue 0.000386 falls in the 95% confidence interval of the pvalue below.
+
+```{r}
+0.0007571 + 1.96*sqrt((0.000386*(1-0.000386))/10000)
+0.0007571 - 1.96*sqrt((0.000386*(1-0.000386))/10000)
+
+```
+
+

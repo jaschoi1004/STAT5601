@@ -1,0 +1,130 @@
+---
+title: "Homework 1 - 5601"
+author: "Jong Hyun Choi"
+date: '2021 1 30 '
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r}
+data12.1=scan("tab12_1.dat")
+data12.3=scan("tab12_3.dat")
+```
+
+Problem 1 
+The number of bins using Sturges' Rule
+```{r}
+ceiling(log2(length(data12.1))+1)
+```
+
+The bin width using Scott's Rule
+```{r}
+(3.5*sd(data12.1))/length(data12.1)^(1/3)
+```
+
+Histograms using all three rules
+```{r}
+hist(data12.1, breaks=8, main = "Scott")
+hist(data12.1, breaks= 8, main= "sturges")
+hist(data12.1, breaks = 9.78259, main = "FD")
+```
+
+There aren't different characteristics of the distribution as the bin width changes 
+
+
+Problem 3
+
+number of bins using Sturges' Rule
+```{r}
+ceiling(log2(length(data12.3))+1)
+```
+
+The bin width using Scott's Rule 
+```{r}
+(3.5*sd(data12.3))/length(data12.3)^(1/3)
+```
+
+The bin width and number of bins using FD 
+```{r}
+(2*IQR(data12.3))/(length(data12.3)^(1/3))
+(max(data12.3) - min(data12.3))/ ((2*IQR(data12.3))/(length(data12.3)^(1/3)))
+```
+
+Histograms using three methods:
+```{r}
+hist(data12.3, breaks = "Sturges")
+hist(data12.3, breaks = "Scott")
+hist(data12.3, breaks = "FD")
+```
+
+From the three histograms, there are no different characteristics that are evident. 
+
+
+Problem 4 
+From the two histograms using Sturges method, we can see they both have same normal distribution even though data 12.3 might be skewed to the left. 
+
+```{r}
+hist(data12.1, breaks = "Sturges", main = "Data 12.1 Sturges")
+hist(data12.3, breaks ="Sturges", main = "Data 12.3 Sturges")
+```
+
+We don't want to make the width too large because that would mean fewer number of bins, which the histograms won't reveal much information. However if the bin widths are too small, then there will be too many bins resulting in regions of zero probability. But visually, having larger bin width will maximize the similarity between two histograms (example: having only 1 histogram for both will look similar)
+
+
+Problem 7
+
+There are not much difference between all 7 kernels except for rectangular which seems more jagged than others
+```{r}
+kde2=density(data12.1, kernel="rectangular")
+plot(kde2)
+
+kde3=density(data12.1, kernel="epanechnikov")
+plot(kde3)
+
+kde5 = density(data12.1, kernel ="triangular")
+plot(kde5)
+
+kde6 = density(data12.1, kernel = "optcosine") 
+plot(kde6)
+
+kde7 = density(data12.1, kernel = "biweight")
+plot(kde7)
+
+kde8 = density(data12.1, kernel = "gaussian")
+plot(kde7)
+
+kde8= density(data12.1, kernel = "cosine")
+plot(kde8)
+```
+
+
+As the bandwidth change, we can see that it produces vastly different estimates
+```{r}
+bw1=density(data12.1, bw=0.01)
+plot(bw1)
+
+bw2 = density(data12.1, bw = .05)
+plot(bw2)
+
+bw3 = density(data12.1, bw = 0.1)
+plot(bw3)
+```
+
+With a fixed bandwidth seen previously with the 7 graphs of different functions, we saw that the graphs were very similar. 
+
+
+Problem 8 
+
+```{r}
+ab= density(data12.3)
+plot(ab)
+```
+
+From the distribution, even though we can see that it is skewed to the left, both male and female data have the same distribution. 
+
+Also, different functions can result in visual changes to the estimate like smoother curve, but it doesn't have a significant impact on the kernel density estimates. 
+
+
+
+

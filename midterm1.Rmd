@@ -1,0 +1,126 @@
+---
+title: "Midterm 1"
+author: "Jong Hyun Choi"
+date: "2/21/2021"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r}
+audit = read.csv("audit.csv", header = TRUE)
+audit$dif = audit$post - audit$pre
+head(audit)
+```
+
+```{r}
+auditA <- subset(audit, method == "A")
+auditB <- subset(audit, method == "B")
+auditC <- subset(audit, method == "C")
+```
+
+
+Problem 1
+From the results we can see that in plot A, we see an increase upto 65, and decreasing except with slight increase around 80
+In plot B, there is steeper increase upto around 60, and slowly decreasing except slight increase around 82
+In plot C, there are two increases, first increase to 60, then decrease a little to 70, then increases again from 70-80, and finally decreases. 
+```{r}
+hist(auditA$pre, xlim = c(40,100), ylim=c(0,0.06))
+x=density(auditA$pre)
+lines(x)
+
+hist(auditB$pre, xlim = c(40,100), ylim=c(0,0.06))
+y=density(auditB$pre)
+lines(y)
+
+hist(auditC$pre, xlim = c(40,100), ylim=c(0,0.06))
+z=density(auditC$pre)
+lines(z)
+```
+
+
+Problem 2 
+From the results, we can see that that the median is pretty much same for three methods. Also, the CI is similar. The slight difference is the p-value with auditA compared to other two, but it's not a huge difference 
+```{r}
+wilcox.test(auditA$pre, conf.int = TRUE)
+wilcox.test(auditB$pre, exact = FALSE, correct = FALSE, conf.int = TRUE)
+wilcox.test(auditC$pre, exact = FALSE, correct = FALSE, conf.int = TRUE)
+```
+
+Problem 3 
+Null hypothesis: alpha1 = alpha2 = alpha3 
+Alternative hypothesis: alpha1 =/ alpha2 =/ alpha3
+Because the p-value 0.9805 is higher than 0.05, we do not reject the null hypothesis. 
+The test statistic is 0.039434
+```{r}
+sync = audit$pre
+cond = factor(rep(c("A", "B", "C"), 10))
+kruskal.test(sync, cond)
+```
+
+
+Problem 4 
+We can see that between 70 and 80 were the most frequent, but decreases between 80 and 85, and frequency increases again around 85. So we can see that the method has an increasing affect overall. 
+```{r}
+hist(audit$post,xlim=c(40, 100),ylim=c(0,0.06))
+a = density(audit$post)
+lines(a) 
+```
+
+
+Problem 5 
+Counting all the numbers where the dif is less than 0, there are 8 of them. 
+And dividng by the n (number of observations), we see there's 30. 
+Answer: 8/30
+```{r}
+audit
+```
+
+
+Problem 6 
+The null hypothesis: Z=Z0
+Alternative hypothesis: H1: Z > Z0
+
+From the results, we can see that our p-value is less than 0.05. So we reject our null hypothesis that training had any effect on audit proficiency.
+```{r}
+wilcox.test(audit$post, audit$pre, alternative = "greater", exact= FALSE, correct = FALSE, conf.int = TRUE, paired = TRUE)
+```
+
+
+Problem 7 
+Method A seems to have half effective and half not effective without lowest bandwidth 
+Method B seems to be more effective than Method A 
+Method C is the most effective with highest bandwidth
+```{r}
+xx=density(auditA$dif)
+plot(xx, xlim=c(-40, 40),ylim=c(0,0.08))
+yy=density(auditB$dif)
+plot(yy, xlim=c(-40, 40),ylim=c(0,0.08))
+zz=density(auditC$dif)
+plot(zz, xlim=c(-40, 40),ylim=c(0,0.08))
+```
+
+Problem 8 
+Using the empirical cumulative distribution function to see the effectiveness of each training method, I counted values where dif < 0 for each training method, and divided by the number of observations for each method which is 10.
+Method A : 1/2 
+Method B : 3/10 
+Method C : 0 
+
+Problem 9 
+Null hypothesis: Beta1 = ...= Betak
+Alternative hypothesis: Beta =/ Beta0
+We reject the null hypothesis because our p-value is less than 0.05 significance level. Our test statistic is 19.784
+```{r}
+sync2 = audit$post
+cond2 = factor(rep(c("A", "B", "C"), 10))
+kruskal.test(sync2, cond2)
+```
+
+
+Problem 10 
+Method C is the best best training method because it has less than 0,05 significance level, and also the median is the largest. 
+```{r}
+wilcox.test(auditA$dif, alternative = "greater", exact = FALSE, correct = FALSE, conf.int = TRUE)
+wilcox.test(auditB$dif, alternative = "greater", exact = FALSE, correct = FALSE, conf.int = TRUE)
+wilcox.test(auditC$dif, alternative = "greater", exact = FALSE, correct = FALSE, conf.int = TRUE)
+```

@@ -1,0 +1,134 @@
+---
+title: "Homework 3"
+author: "Jong Hyun Choi"
+date: "3/7/2021"
+output:
+  word_document: default
+  html_document: default
+---
+
+Problem 5.6 
+Using the equation, C'= [N(N + 2)/4] − C
+We know that N=m+n=40 and C = 185.5 given from the textbook 
+```{r}
+Capos = 40*(40+2)/4 - 185.5
+Capos
+```
+
+Problem 5.7 
+If we take an example and set n=3 and m=4, then our N=7. 
+calculating the smallest C value would be 1+2+1, and the largest would be (N+1)/2 + (N-1)/2 +(N-2)/2
+If we take an example and set n = 4 and m=4, then our N=8 
+Calculating the smallest C value would be 1+2+2+1, and our largest would be (N/2) + (N/2) +(N-1)/2 (N-1)/2
+
+
+Problem 5.9 
+We want to use Wilcoxon test when we want to test the difference in the location, whereas the Ansari-Bradley tests the difference in their dispersions. Because these two tests are for different distribuions, so the result does not imply Ansari-Bradley
+
+We do not reject the null hypothesis because our p-value is greater than 0.05
+```{r}
+set.seed(1)
+x<−c(1042, 1617, 1180, 973, 1552, 1251, 1151, 1511, 728, 1079, 951, 1319) 
+y<−c(874, 389, 612, 798, 1152, 893, 541, 741, 1064, 862, 213) 
+ansari.test(x,y, exact = FALSE)
+```
+
+
+
+Problem 5.31 
+We see that our p-value is less than 0.05 significance level. 
+Therefore we reject the null hypothesis that there is no difference in location and no difference in variance between the control and SST data. 
+Because example 4.2 told us about location by rejecting the null hypothesis and problem 9 told us about variance by not rejecting the null hypothesis, we can see that in Lepage where we test if two groups differ in dispersion or/and location, we reject the null hypothesis
+```{r}
+require(NSM3)
+set.seed(1)
+x<−c(1042, 1617, 1180, 973, 1552, 1251, 1151, 1511, 728, 1079, 951, 1319)
+y<−c(874, 389, 612, 798, 1152, 893, 541, 741, 1064, 862, 213)
+pLepage(x,y)
+```
+
+
+Problem 5.34
+We can see that the p-value is less than 0.05 significance level. 
+Therefore, we can reject the null hypothesis that there is no difference between the control and SST probability distribution.
+Because there were difference in location, difference either in dispersion or/and location, we can see that in Kolmogorov-Smirnov test, we would see any general difference between 2 groups
+```{r}
+set.seed(1) 
+x<−c(1042, 1617, 1180, 973, 1552, 1251, 1151, 1511, 728, 1079, 951, 1319)
+y<−c(874, 389, 612, 798, 1152, 893, 541, 741, 1064, 862, 213)
+ks.test(x,y)
+```
+
+
+Problem 8.3
+Ho: τ=0 
+H1: τ=/0
+We see that our p-value is greater than 0.1 significance level. Therefore we do not reject the null hypothesis of independence between the brain weight and large fiber count. 
+```{r}
+data8.4=read.csv("tab8_4.csv")
+```
+
+```{r}
+x= data8.4$weight
+y= data8.4$count
+cor.test(x,y, method = "kendall")
+```
+
+
+Problem 8.22
+We can see that our tauhat is 0.2727273, which is the same tau that we got in our cor.test function in our previous question
+```{r}
+x= data8.4$weight
+y= data8.4$count 
+n = 11 
+Qmat = matrix(0, n-1, n-1)  
+colnames(Qmat) =1:(n-1) 
+rownames(Qmat) = 2:n
+for(i in 1:(n-1)){
+  for(j in (i+1):n){
+    qval=(y[j]-y[i])*(x[j]-x[i])
+    if(qval>0){
+      Qmat[j-1,i]=1
+    }else if(qval<0){
+      Qmat[j-1,i]=-1
+    }
+  }
+}
+K=sum(Qmat)
+tauhat=K/(n*(n-1)/2)
+tauhat
+```
+
+
+Problem 8.28
+```{r}
+require(NSM3)
+kendall.ci(x,y, alpha = 0.1)
+```
+
+Problem 8.3 - Spearman Method
+H0: η=0 
+H1: η=/0
+From our results, we see that our p-value is greater 0.1 
+Therefore, we do not reject the null hypothesis that brain weight and large fiber count are independent 
+Comparing this to Kendall's we see that both methods did not reject the null hypothesis, but Spearman's Method gave a smaller p-value 
+```{r}
+cor.test(x,y, method = "spearman")
+```
+
+
+Problem 8.22 - Spearman Method
+Seeing the previous output, we see that our rho = 0.427. So rho is greater than tau that was solved for Kendall's 
+
+
+Problem 8.28 - Spearnman Method
+Our 90% confidence interval is from -0.2165899 to 0.8100000, comparing this to Kendall's Spearman Method has a wider confidence interval 
+```{r}
+require(RVAideMemoire)
+spearman.ci(data8.4$weight,data8.4$count,conf.level=0.9)
+```
+
+
+
+
+

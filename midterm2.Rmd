@@ -1,0 +1,174 @@
+---
+title: "Midterm 2"
+author: "Jong Hyun Choi"
+date: "3/28/2021"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r}
+audit <- read.csv("audit.csv", header = TRUE)
+audit$dif <- audit$post - audit$pre
+head(audit)
+```
+
+```{r}
+auditA <- subset(audit, method == "A")
+auditB <- subset(audit, method == "B")
+auditC <- subset(audit, method == "C")
+```
+
+Problem 1
+There isn't a super strong correlation between the pre and post test scores because the dots don't align to the line very much, but you can see that the line is positive and going upwards, so that can also show that there is some correlation. 
+```{r}
+plot(audit$pre, audit$post, ylim = c(60,95))
+abline(lm(audit$post ~ audit$pre))
+```
+
+Problem 2 
+H0:ρ(X,Y)=0 
+H1:ρ(X,Y)>0
+
+The test statistic is 2.5386 with p-value 0.008486, which is less than the significance level of 0.01, so we reject the null hypothesis. 
+```{r}
+cor.test(audit$pre, audit$post, alternative = "greater")
+```
+
+
+Problem 3 
+H0:ρ(X,Y)=0 
+H1:ρ(X,Y)>0
+
+The test statistic we get is 2.293 which is different from the previous problem. Also we get a p-value of 0.0113, which is greater than the significance level 0.01, so we fail to reject the null hypothesis. 
+```{r}
+require(nptest)
+set.seed(1)
+nct = np.cor.test(audit$pre, audit$post, alternative = "greater")
+nct
+```
+
+Problem 4 
+No, it's not an exact test because we need to set the number of elements of the null distribution to 30! in order to obtain an exact test, and also satisfy basic assumptions like X,Y being independent. And so because we are not setting the number of elements in the null distribution to 30!, we don't have an exact test. 
+
+Our 95% confidence interval for the true (exact) p-value is from 0.009228335 to 0.013371665
+```{r}
+se <- sqrt(nct$p.value * (1 - nct$p.value) / length(nct$perm.dist))
+zval <- qnorm(.975)
+ci <- c(nct$p.value - zval * se, nct$p.value + zval * se)
+ci
+```
+
+
+Problem 5
+Looking at problem 2 and 3, we can see that in problem 2 it rejected the null hypothesis, but in problem 3, it didn't. 
+So when looking at the graph from problem 1, we can see a positive linear relationship because it's sloped positive. 
+So I think that there's not a strong linear relationship, but still is a positive linear relationship. 
+
+Problem 6 
+For A, there is a good linear association because it has the steepest slope out of the three. 
+For B, there isn't as good of a linear association because the slope is somewhat flat. 
+For C, I think there is a better association than B, but not as good as A because the slope isn't that steep. 
+```{r}
+plot(audit$pre, audit$post, ylim = c(60,95))
+abline(lm(auditA$post~auditA$pre), col = "black")
+text(auditA$pre, auditA$post, labels = "A", col = "black")
+
+abline(lm(auditB$post~ auditB$pre), col = "blue")
+text(auditB$pre, auditA$post, labels = "B", col = "blue") 
+
+abline(lm(auditC$post ~ auditC$pre), col = "red") 
+text(auditC$pre, auditC$post, labels = "C", col = "red")
+```
+
+
+Problem 7 
+H0:β4=β5=0
+H1: β4≠0 and/or β5≠0
+
+We see from the results, our F test statistic is 0.6894  and that our p-value is  0.5115, which is greater than 0.01 significance level, so we fail to reject the null hypothesis
+```{r}
+mod1 = lm(audit$post ~ audit$pre + audit$method)
+mod2 = lm(audit$post ~ audit$pre + audit$method + audit$pre*audit$method)
+anova(mod2)
+```
+
+
+Problem 8 
+H0:β4=β5=0
+H1: β4≠0 and/or β5≠0
+
+The test statistic is 0.6894, and the p-value is 0.5086. The test statistic is the same, but the p-value is different for nonparametric test than when using ANOVA. Because the p-value is greater than our significance level of 0.01, we fail to reject the null hypothesis 
+```{r}
+a=model.matrix(audit$post ~ audit$pre * audit$method)
+nct2 = np.reg.test(x = cbind(a[,5],a[,6]), y = audit$post, z = cbind(a[,2],a[,3],a[,4]), homosced = TRUE)
+nct2
+```
+
+
+Problem 9 
+The test that we did in problem 8 is not an exact test because the requested number of resamples in R has to be greater than n!
+The confidence interval that we see 0.4983015 to 0.5178985
+```{r}
+se1 <- sqrt(nct2$p.value * (1 - nct2$p.value) / length(nct2$perm.dist))
+zval1 <- qnorm(.975)
+ci1 <- c(nct2$p.value - zval1 * se1, nct2$p.value + zval1 * se1)
+ci1
+```
+
+
+Problem 10 
+Because in problems 7 and 8, we failed to reject the null hypothesis, I think there is an interaction between the pre and training methods. 
+
+
+Problem 11 
+From the graph, we see that all the lines have the common slope. Therefore, they all have the same positive linear association for the pre and the post. 
+```{r}
+plot(audit$pre, audit$post, ylim = c(60,95))
+lm(audit$post ~ audit$pre + audit$method)
+abline(a=47.155, b = 0.334, col = "black")
+abline(a = 51.222, b = 0.334, col = "blue") 
+abline(a = 62.755, b = 0.334, col = "red") 
+text(auditA$pre, auditA$post, labels = "A", col = "black")
+text(auditB$pre, auditA$post, labels = "B", col = "blue") 
+text(auditC$pre, auditC$post, labels = "C", col = "red")
+```
+
+
+Problem 12 
+H0:β4=β5=0  
+H1:(β4≠0) and/or (β5≠0)
+We see a F test statistic of 91.183 and p-value of 1.778e-12, so we reject the null hypothesis because it's less than 0.01 significance level
+```{r}
+mod3 = lm(audit$post ~ audit$pre)
+mod4 = lm(audit$post ~ audit$pre + audit$method)
+anova(mod3, mod4)
+```
+
+
+Problem 13 
+H0:β4=β5=0  
+H1:(β4≠0) and/or (β5≠0)
+The F test statistic is the same, but the p-value is different from anova. But because it's less than 0.01 significance level, we reject the null hypothesis 
+```{r}
+set.seed(1)
+b = model.matrix(audit$post ~ audit$pre + audit$method) 
+nct3 = np.reg.test(x = cbind(b[,3],b[,4]), y = audit$post, z = cbind(b[,2]), homosced = TRUE)
+nct3
+```
+
+
+Problem 14 
+false
+The test is not an exact test because all n! elements of the null distribution is necessary, and M is bigger than R
+The confidence intervals are from -0.0000959866 to 0.0002959866
+```{r}
+se1 <- sqrt(nct3$p.value * (1 - nct3$p.value) / length(nct3$perm.dist))
+zval1 <- qnorm(.975)
+ci1 <- c(nct3$p.value - zval1 * se1, nct3$p.value + zval1 * se1)
+ci1
+```
+
+
+Problem 15 
+Based on the results, there definitely is an effect of training methods, and I think the most effective training method is C. This is because from problem 13, we found the slope and coefficients of all three methods. And Method C had the highest slope. With the same coefficient, but the highest slope, it will increase the values the fastest, thus have the most effective training method. 

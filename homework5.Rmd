@@ -1,0 +1,135 @@
+---
+title: "Homework 5"
+author: "Jong Hyun Choi"
+date: "4/16/2021"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r}
+data3.3 = read.csv("tab3_3.csv")
+```
+
+Exercise 1 
+a) The standard error is 119.4194, and the 95% confidence interval is -236.0008 to 232.1148
+```{r}
+library(nptest)
+set.seed(0)
+npbs = np.boot(x = data3.3$x - data3.3$y, statistic = median, method = "norm")
+npbs
+```
+
+b) The 95% confidence interval using basic method is -70 to 110
+The 95% confidence interval using perc method is  -190 to -10
+```{r}
+set.seed(0)
+npbs1 = np.boot(x = data3.3$x - data3.3$y, statistic = median, method = "basic")
+npbs1
+
+set.seed(0)
+npbs2 = np.boot(x = data3.3$x - data3.3$y, statistic = median, method = "perc")
+npbs2
+```
+
+c) The 95% confidence interval using studentized method is -190.1397 to 202.1220
+```{r}
+set.seed(0)
+npbs3 = np.boot(x= data3.3$x - data3.3$y, statistic = median, method = "stud", sdrep = 99)
+npbs3
+```
+
+d) The 95% confidence interval using bca method is -1080 to -20
+```{r}
+set.seed(0)
+npbs4 = np.boot(x = data3.3$x - data3.3$y, statistic = median, method = "bca")
+npbs4
+```
+
+
+e) I prefer the bca method because it has the widest confidence interval. Also, bca method can typically provide an accurate coverate rate at a fraction of the computational cost of the studentized. Therefore, bca is a very efficient method. The different methods form different results because some have better coverage rates than others and they all use different approaches. 
+
+
+Exercise 2 
+
+```{r}
+heights= read.csv("http://web.stanford.edu/class/stats191/data/heights.table")
+```
+
+a) sdfdfs
+```{r}
+statfun = function(x,data)
+{
+  cor(data[x,1],data[x,2])
+}
+
+set.seed(0)
+npbs5 = np.boot(x=1:nrow(heights), statistic = statfun, method = "bca", data = heights)
+npbs5
+```
+
+b) dfdfd
+```{r}
+xmat <- cbind(1, heights$HUSBAND)
+xinv <- solve(crossprod(xmat)) %*% t(xmat)
+fit <- xmat %*% xinv %*% heights$WIFE
+data <- list(fit = fit, resid = heights$WIFE - fit, xinv = xinv, x = heights$HUSBAND)
+
+statfun <- function(x, data) {
+  ynew <- data$fit + data$resid[x]
+  coef <- as.numeric(data$xinv %*% ynew)
+  names(coef) <- c("(Intercept)", "x")
+  coef
+}
+
+# define jackknife function
+jackfun <- function(x, data){
+  ynew <- data$fit[x] + data$resid[x]
+  xmat <- cbind(1, data$x[x])
+  xinv <- solve(crossprod(xmat)) %*% t(xmat)
+  coef <- as.numeric(xinv %*% ynew)
+  names(coef) <- c("(Intercept)", "x")
+  coef
+}
+
+# nonparametric bootstrap
+set.seed(0)
+npbs7 <- np.boot(x = 1:nrow(heights), statistic = statfun, 
+                data = data, jackknife = jackfun)
+npbs7
+```
+
+c)sdfsdfsdf
+```{r}
+data <- data.frame(x = heights$HUSBAND, y = heights$WIFE)
+
+# define statistic function
+statfun <- function(x, data) {
+  xmat <- cbind(1, data$x[x])
+  xinv <- solve(crossprod(xmat)) %*% t(xmat)
+  coef <- as.numeric(xinv %*% data$y[x])
+  names(coef) <- c("(Intercept)", "x")
+  coef
+}
+
+# nonparametric bootstrap
+set.seed(0)
+npbs8 <- np.boot(x = 1:nrow(heights), statistic = statfun, data = data)
+npbs8
+```
+
+
+d) a is more related to b because the confidence interval is closer to b. Based on the parts a, b, and c we can conclude that that there is a positive linear relationship between the husband and wife's height based on the positive intercept and slope.
+
+
+
+e) I would choose the boostrapping residual for this application because it produces larger estimates of the standard errors for both the intercept and slope. 
+Based on the graph, we can see that the relationship from the plot to the line is homoscedastic, which means that the residuals are constant. Therefore, based on our assumptions, it's better to use the bootstrapping residual. 
+
+```{r}
+a = plot(lm(WIFE ~ HUSBAND, data = heights), which = 1)
+```
+
+
+
+
